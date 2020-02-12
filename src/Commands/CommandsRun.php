@@ -43,8 +43,8 @@ class CommandsRun extends Command
             $this->error('Manager class does not exists!');
             return;
         }
-        $params = [];
-        (new $class)->run($params, $this);
+        $options = [];
+        (new $class)->run($options, $this);
         return;
     }
 

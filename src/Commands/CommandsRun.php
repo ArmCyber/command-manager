@@ -3,7 +3,7 @@
 namespace Zakhayko\CommandManager\Commands;
 
 use Illuminate\Console\Command;
-use Zakhayko\CommandManager\ServiceContainer;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class CommandsRun extends Command
 {
@@ -34,7 +34,7 @@ class CommandsRun extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
@@ -44,6 +44,16 @@ class CommandsRun extends Command
             return;
         }
         $params = [];
-        new ($class())->run($params, $this);
+        (new $class)->run($params, $this);
+        return;
+    }
+
+    public function line($string, $style = null, $verbosity = null)
+    {
+        if ($style === 'warning' && !$this->output->getFormatter()->hasStyle('warning')) {
+            $newStyle = new OutputFormatterStyle('yellow');
+            $this->output->getFormatter()->setStyle('warning', $newStyle);
+        }
+        parent::line($string, $style, $verbosity);
     }
 }

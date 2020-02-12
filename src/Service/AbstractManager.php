@@ -1,5 +1,7 @@
 <?php
-namespace Zakhayko\CommandManager\Service\AbstractManager;
+namespace Zakhayko\CommandManager\Service;
+
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 abstract class AbstractManager {
     abstract protected function register();
@@ -23,6 +25,5 @@ abstract class AbstractManager {
 
     public function run($params, $console = null){
         $this->console = $console;
-
     }
 }

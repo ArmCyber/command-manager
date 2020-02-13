@@ -9,7 +9,9 @@ return [
         ],
     ],
 
-    'default_group' => 'self',
+    'options' => [
+        'group' => 'self',
+    ],
 
     'manager_class' => 'App\Console\CommandManager',
 ];

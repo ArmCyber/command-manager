@@ -2,6 +2,7 @@
 namespace Zakhayko\CommandManager\Service;
 
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Process\Process;
 
 abstract class AbstractManager {
     abstract protected function register();
@@ -9,6 +10,8 @@ abstract class AbstractManager {
     private $console;
 
     private $commands;
+
+    private $default_options;
 
     private $options;
 
@@ -31,6 +34,10 @@ abstract class AbstractManager {
         ]);
     }
 
+    private function getOption($key){
+        return $this->options[$key]??($this->default_options[$key]??null);
+    }
+
     protected function command($key, $command){
         $this->addCommand($key, 'command', $command);
     }
@@ -39,8 +46,27 @@ abstract class AbstractManager {
         $this->console = $console;
         $this->commands = collect();
         $this->options = $options;
+        $this->default_options = config('command-manager.options');
         $this->register();
         $this->handle();
+    }
+
+    private function action_command($command) {
+        $process = new Process('(cd packages/command-manager && git add . && git commit -m "test work" && git push)');
+        try {
+            $output = $process->mustRun()->getOutput();
+            echo $output;
+        } catch(\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    public function handle() {
+        foreach($this->commands as $command) {
+            $this->action_command($command['handle']);
+
+            die;
+        }
     }
 
 

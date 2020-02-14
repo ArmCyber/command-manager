@@ -53,13 +53,8 @@ abstract class AbstractManager {
     }
 
     private function run_command($command) {
-        $process = new Process('(cd packages/command-manager && git add . && git commit -m "test work" && git push)');
-        try {
-            $output = $process->mustRun()->getOutput();
-            echo $output;
-        } catch(\Exception $e) {
-            echo $e->getMessage();
-        }
+        $process = new Process($command);
+        echo $process->mustRun()->getOutput();
     }
 
     private function filterUndone(){
@@ -71,7 +66,9 @@ abstract class AbstractManager {
         $this->filterUndone();
         foreach($this->commandKeys as $key) {
             try {
+                $this->line('Running:' . $key, 'warning');
                 $this->run_command($this->commands[$key]['action']);
+                $this->line('Complete:' . $key, 'info');
             } catch (\Exception $e) {
                 $this->line($e->getMessage());
             }

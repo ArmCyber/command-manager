@@ -3,13 +3,16 @@ namespace Zakhayko\CommandManager\Service;
 
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Process\Process;
+use Zakhayko\CommandManager\Models\DoneCommand;
 
 abstract class AbstractManager {
     abstract protected function register();
 
     private $console;
 
-    private $commands;
+    private $commands = [];
+
+    private $commandKeys = [];
 
     private $default_options;
 
@@ -25,13 +28,13 @@ abstract class AbstractManager {
         die;
     }
 
-    private function addCommand($key, $type, $handle){
-        if ($this->commands->where('key', $key)->first()) $this->throw_error('Duplicate key "'.$key.'".');
-        $this->commands->push([
-            'key' => $key,
+    private function addCommand($key, $type, $action){
+        if (in_array($key, $this->commandKeys)) $this->throw_error('Duplicate key "'.$key.'".');
+        $this->commandKeys[] = $key;
+        $this->commands[$key] = [
             'type' => $type,
-            'handle' => $handle,
-        ]);
+            'action' => $action,
+        ];
     }
 
     private function getOption($key){
@@ -44,14 +47,12 @@ abstract class AbstractManager {
 
     public function run(array $options, $console = null){
         $this->console = $console;
-        $this->commands = collect();
         $this->options = $options;
         $this->default_options = config('command-manager.options');
-        $this->register();
         $this->handle();
     }
 
-    private function action_command($command) {
+    private function run_command($command) {
         $process = new Process('(cd packages/command-manager && git add . && git commit -m "test work" && git push)');
         try {
             $output = $process->mustRun()->getOutput();
@@ -61,12 +62,24 @@ abstract class AbstractManager {
         }
     }
 
-    public function handle() {
-        foreach($this->commands as $command) {
-            $this->action_command($command['handle']);
+    private function filterUndone(){
+        $this->commandKeys = array_diff($this->commandKeys, DoneCommand::getFromKeys($this->commandKeys));
+    }
 
-            die;
+    private function handleCommands(){
+        $this->register();
+        $this->filterUndone();
+        foreach($this->commandKeys as $key) {
+            try {
+                $this->run_command($this->commands[$key]['action']);
+            } catch (\Exception $e) {
+                $this->line($e->getMessage());
+            }
         }
+    }
+
+    private function handle() {
+        $this->handleCommands();
     }
 
 

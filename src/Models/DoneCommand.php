@@ -9,4 +9,8 @@ class DoneCommand extends Model
     protected $dates = [
         'done_at'
     ];
+
+    public static function getFromKeys(array $keys){
+        return self::whereIn('key', $keys)->pluck('id')->toArray();
+    }
 }

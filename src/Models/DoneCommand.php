@@ -11,6 +11,15 @@ class DoneCommand extends Model
     ];
 
     public static function getFromKeys(array $keys){
-        return self::whereIn('key', $keys)->pluck('id')->toArray();
+        return self::whereIn('key', $keys)->pluck('key')->toArray();
+    }
+
+    public static function getBatch() {
+        $max = (int) self::max('batch');
+        return $max+1;
+    }
+
+    public static function insertDoneCommands($data){
+        self::insert($data);
     }
 }

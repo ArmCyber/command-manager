@@ -54,6 +54,10 @@ class CommandsRun extends Command
             $newStyle = new OutputFormatterStyle('yellow');
             $this->output->getFormatter()->setStyle('warning', $newStyle);
         }
+        elseif ($style === 'danger' && !$this->output->getFormatter()->hasStyle('danger')) {
+            $newStyle = new OutputFormatterStyle('red');
+            $this->output->getFormatter()->setStyle('danger', $newStyle);
+        }
         parent::line($string, $style, $verbosity);
     }
 }

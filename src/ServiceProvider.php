@@ -44,6 +44,7 @@ class ServiceProvider extends BaseServiceProvider
     private function renderPublishes(){
         $this->publishes([
             __DIR__.'/config.php' => config_path().'/command-manager.php',
+            __DIR__.'/manager.stub' => app_path().'/console/CommandManager.php',
         ], 'command-manager');
     }
 

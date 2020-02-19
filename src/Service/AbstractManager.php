@@ -1,7 +1,6 @@
 <?php
 namespace Zakhayko\CommandManager\Service;
 
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Process\Process;
 use Zakhayko\CommandManager\Models\DoneCommand;
 
@@ -22,9 +21,23 @@ abstract class AbstractManager {
 
     private $batch;
 
-    private function line($string, $style=null){
+    private $handling = false;
+
+    protected function line($string, $style=null){
         if (!$this->console) return;
         $this->console->line($string, $style);
+    }
+
+    protected function info($string){
+        $this->line($string, 'info');
+    }
+
+    protected function warn($string){
+        $this->line($string, 'warning');
+    }
+
+    protected function error($string) {
+        $this->line($string, 'danger');
     }
 
     private function throw_error($message) {
@@ -45,8 +58,17 @@ abstract class AbstractManager {
         return $this->options[$key]??($this->default_options[$key]??null);
     }
 
-    protected function command($key, $command){
-        $this->addCommand($key, 'command', $command);
+    protected function command($key, $command=null){
+        if (!$this->handling) {
+            if (!$command) $this->throw_error('No command provided.');
+            $this->addCommand($key, 'command', $command);
+        }
+        else {
+            $this->warn('Running action command: '.$key);
+            $this->run_command($key);
+            $this->info('Completed action command: '.$key);
+        }
+        return true;
     }
 
     protected function action($key, $action){
@@ -66,7 +88,7 @@ abstract class AbstractManager {
             if ($result && is_scalar($result)) $this->line($result);
             return true;
         } catch (\Exception $e){
-            $this->line($e->getMessage(), 'danger');
+            $this->error($e->getMessage());
             return false;
         }
     }
@@ -90,9 +112,10 @@ abstract class AbstractManager {
         $this->register();
         $this->filterUndone();
         if (count($this->commandKeys)==0){
-            $this->line("\n".'You are up to date.', 'info');
+            $this->info("\n".'You are up to date.');
             return;
         }
+        $this->handling = true;
         foreach($this->commandKeys as $key) {
             if (!$this->handleCommand($key)) break;
         }
@@ -100,19 +123,19 @@ abstract class AbstractManager {
     }
 
     private function handleCommand($key){
-        $this->line("\n".'Running: ' . $key, 'warning');
+        $this->warn("\n".'Running: ' . $key);
         $command = $this->commands[$key];
         if($command['type'] === 'command') $command_status = $this->run_command($command['action']);
         elseif ($command['type'] === 'action') $command_status = $this->run_action($command['action']);
         else {
-            $this->line('Unknown type.', 'danger');
+            $this->error('Unknown type.');
             $command_status = false;
         }
         if (!$command_status) {
-            $this->line('Failed: ' . $key . '.', 'danger');
+            $this->error('Failed: ' . $key . '.');
             return false;
         }
-        $this->line('Completed: ' . $key, 'info');
+        $this->info('Completed: ' . $key);
         $this->markAsDone($key);
         return true;
     }
@@ -131,9 +154,9 @@ abstract class AbstractManager {
     }
 
     private function handle() {
-        $this->line('Starting CommandManager.', 'warning');
+        $this->warn('Starting CommandManager.');
         $this->handleCommands();
-        $this->line("\n".'Completed CommandManager.', 'info');
+        $this->info("\n".'Completed CommandManager.');
     }
 
 

@@ -1,0 +1,12 @@
+<?php
+namespace App\Console;
+
+use Zakhayko\CommandManager\Service\AbstractManager;
+
+class CommandManager extends AbstractManager {
+
+    protected function register()
+    {
+        //
+    }
+}

@@ -19,7 +19,7 @@ class CommandsRun extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Runs Command Manager.';
 
     /**
      * Create a new command instance.

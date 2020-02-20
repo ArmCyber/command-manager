@@ -12,7 +12,7 @@ class CommandsRun extends Command
      *
      * @var string
      */
-    protected $signature = 'commands:run {group?}';
+    protected $signature = 'commands:run {group?} {--t|test-mode}';
 
     /**
      * The console command description.
@@ -44,6 +44,7 @@ class CommandsRun extends Command
             return;
         }
         $options = [];
+        if ($this->option('test-mode')) $options['test_mode'] = true;
         (new $class)->run($options, $this);
         return;
     }

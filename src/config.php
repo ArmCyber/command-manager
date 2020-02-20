@@ -9,9 +9,5 @@ return [
         ],
     ],
 
-    'options' => [
-        'group' => 'self',
-    ],
-
     'manager_class' => 'App\Console\CommandManager',
 ];

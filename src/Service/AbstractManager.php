@@ -15,7 +15,9 @@ abstract class AbstractManager {
 
     private $done_commands = [];
 
-    private $default_options;
+    private $default_options = [
+        'test_mode' => false,
+    ];
 
     private $options;
 
@@ -78,7 +80,6 @@ abstract class AbstractManager {
     public function run(array $options, $console = null){
         $this->console = $console;
         $this->options = $options;
-        $this->default_options = config('command-manager.options');
         $this->handle();
     }
 
@@ -136,7 +137,7 @@ abstract class AbstractManager {
             return false;
         }
         $this->info('Completed: ' . $key);
-        $this->markAsDone($key);
+        if (!$this->getOption('test_mode')) $this->markAsDone($key);
         return true;
     }
 

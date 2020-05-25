@@ -9,5 +9,11 @@ return [
         ],
     ],
 
+    'skip_errors' => [
+        'npm',
+    ],
+
+    'default_group' => 'self',
+
     'manager_class' => 'App\Console\CommandManager',
 ];

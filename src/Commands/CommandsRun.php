@@ -45,6 +45,7 @@ class CommandsRun extends Command
         }
         $options = [];
         if ($this->option('test-mode')) $options['test_mode'] = true;
+        if ($this->hasArgument('group')) $options['group'] = $this->argument('group');
         (new $class)->run($options, $this);
         return;
     }
